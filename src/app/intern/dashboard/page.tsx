@@ -294,24 +294,24 @@ export default function InternDashboard() {
       </section>
 
       {selectedCompanyInfo && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div className="glass-panel" style={{ padding: '2rem', maxWidth: '500px', width: '90%', position: 'relative' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div className="glass-panel" style={{ padding: '2rem', maxWidth: '500px', width: '90%', position: 'relative', backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
             <button onClick={() => setSelectedCompanyInfo(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
             <h3 style={{ marginTop: 0 }}>{selectedCompanyInfo.name} 구인정보</h3>
             <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.08)', borderRadius: '8px' }}>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>청년 근무 지역</div>
                 <div style={{ fontWeight: '500' }}>{selectedCompanyInfo.youthLocation || '미입력'}</div>
               </div>
-              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.08)', borderRadius: '8px' }}>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>청년 급여 조건</div>
                 <div style={{ fontWeight: '500' }}>{selectedCompanyInfo.youthSalary || '미입력'}</div>
               </div>
-              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.08)', borderRadius: '8px' }}>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>청년 담당 업무</div>
                 <div style={{ fontWeight: '500' }}>{selectedCompanyInfo.youthTasks || '미입력'}</div>
               </div>
-              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.08)', borderRadius: '8px' }}>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>우대 조건</div>
                 <div style={{ fontWeight: '500' }}>{selectedCompanyInfo.preferredQualifications || '미입력'}</div>
               </div>
