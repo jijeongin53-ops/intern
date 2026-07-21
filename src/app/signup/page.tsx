@@ -53,8 +53,8 @@ export default function Signup() {
           </div>
 
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" htmlFor="email">이메일</label>
-            <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="form-input" placeholder="example@email.com" required />
+            <label className="form-label" htmlFor="email">아이디 (이메일)</label>
+            <input type="text" id="email" value={email} onChange={e => setEmail(e.target.value)} className="form-input" placeholder="아이디 또는 이메일" required />
           </div>
           
           <div className="form-group" style={{ marginBottom: 0 }}>

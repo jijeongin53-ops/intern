@@ -6,18 +6,31 @@ import { useRouter } from 'next/navigation';
 export default function AdminDashboard() {
   const router = useRouter();
   const [applications, setApplications] = useState<any[]>([]);
+  const [stats, setStats] = useState({ internCount: 0, companyCount: 0 });
   const [loading, setLoading] = useState(true);
 
-  const fetchApplications = async () => {
+  const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/applications');
-      const data = await res.json();
-      if (data.success) {
-        setApplications(data.applications || []);
+      const [appRes, userRes] = await Promise.all([
+        fetch('/api/applications'),
+        fetch('/api/users')
+      ]);
+      
+      const appData = await appRes.json();
+      const userData = await userRes.json();
+
+      if (appData.success) {
+        setApplications(appData.applications || []);
+      }
+      if (userData.success) {
+        setStats({
+          internCount: userData.internCount || 0,
+          companyCount: userData.companyCount || 0
+        });
       }
     } catch (error) {
-      console.error('Failed to fetch applications', error);
+      console.error('Failed to fetch dashboard data', error);
     } finally {
       setLoading(false);
     }
@@ -29,7 +42,12 @@ export default function AdminDashboard() {
       router.push('/login');
       return;
     }
-    fetchApplications();
+    const parsedUser = JSON.parse(user);
+    if(parsedUser.role !== 'admin') {
+      router.push('/login');
+      return;
+    }
+    fetchDashboardData();
   }, [router]);
 
   const handleLogout = () => {
@@ -47,6 +65,20 @@ export default function AdminDashboard() {
         <h2>관리자(Admin) 대시보드</h2>
         <button className="btn btn-glass" onClick={handleLogout}>로그아웃</button>
       </header>
+
+      <section className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
+        <h3>전체 가입자 현황</h3>
+        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
+            <h4>가입한 청년</h4>
+            <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{stats.internCount} 명</p>
+          </div>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
+            <h4>가입한 기업</h4>
+            <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{stats.companyCount} 개</p>
+          </div>
+        </div>
+      </section>
 
       <section className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <h3>전체 인턴십 지원 종합 현황</h3>
@@ -69,7 +101,7 @@ export default function AdminDashboard() {
       <section className="glass-panel" style={{ padding: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <h3>전체 지원 내역 (구글 시트 연동)</h3>
-          <button className="btn btn-primary" onClick={fetchApplications}>
+          <button className="btn btn-primary" onClick={fetchDashboardData}>
             {loading ? '동기화 중...' : '데이터 동기화'}
           </button>
         </div>
