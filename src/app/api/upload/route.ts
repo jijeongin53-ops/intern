@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { google } from 'googleapis';
-import { Readable } from 'stream';
 import { appendSheetData } from '@/lib/googleSheets';
 
 export async function POST(req: NextRequest) {
@@ -13,53 +11,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Missing file or internId' }, { status: 400 });
     }
 
-    // Google Auth
-    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY
-      ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-      : undefined;
-
-    const auth = new google.auth.GoogleAuth({
-      credentials: { client_email: email, private_key: privateKey },
-      scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    const drive = google.drive({ version: 'v3', auth });
-
-    // File content
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const stream = Readable.from(buffer);
-
-    // Upload to Google Drive (User specified folder ID)
-    const folderId = '1pkDdUL1bcptPu892OTEFmLrxgfxK3TCQ';
-    
-    const driveRes = await drive.files.create({
-      requestBody: {
-        name: `Resume_${internId}_${file.name}`,
-        parents: [folderId],
-      },
-      media: {
-        mimeType: file.type,
-        body: stream,
-      },
-      fields: 'id, webViewLink',
-    });
-
-    const fileId = driveRes.data.id;
-    const webViewLink = driveRes.data.webViewLink;
-
-    if (!fileId || !webViewLink) {
-      throw new Error('Failed to get Drive link after upload');
+    const gasUrl = process.env.GAS_UPLOAD_URL || process.env.NEXT_PUBLIC_GAS_URL;
+    if (!gasUrl) {
+      return NextResponse.json({ success: false, message: 'Server is missing GAS_UPLOAD_URL' }, { status: 500 });
     }
 
-    // Make the file public to anyone with link (so companies can view it)
-    await drive.permissions.create({
-      fileId: fileId,
-      requestBody: {
-        role: 'reader',
-        type: 'anyone',
-      }
+    // 파일 데이터를 Base64로 변환
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Data = buffer.toString('base64');
+
+    // Google Apps Script(Web App)로 POST 요청 전송
+    const gasResponse = await fetch(gasUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        filename: `Resume_${internId}_${file.name}`,
+        mimeType: file.type,
+        base64: base64Data
+      })
     });
+
+    const gasData = await gasResponse.json();
+
+    if (!gasData.success) {
+      throw new Error(gasData.error || 'Failed to upload via GAS');
+    }
+
+    const webViewLink = gasData.url;
 
     // Save to Documents_Log Sheet
     // Headers: ['Log ID', 'User ID', 'Document Name', 'File Link', 'Upload Date']
