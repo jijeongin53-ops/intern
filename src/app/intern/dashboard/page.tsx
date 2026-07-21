@@ -142,9 +142,15 @@ export default function InternDashboard() {
         <p style={{ color: 'var(--text-secondary)' }}>기업에 지원하기 위해서는 반드시 먼저 이력서를 작성하고 업로드해야 합니다.</p>
         
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <button className="btn btn-glass" onClick={() => alert('구글 시트 등록 후 제공될 예정입니다.')}>
+          <a 
+            href="https://drive.google.com/file/d/1E3PzsovD4jjd_DPcvUihZk4qyHTdDZJS/view?usp=drive_link" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="btn btn-glass" 
+            style={{ textDecoration: 'none', display: 'inline-block' }}
+          >
             이력서 양식 다운로드
-          </button>
+          </a>
           
           <input 
             type="file" 
