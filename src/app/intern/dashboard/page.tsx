@@ -98,9 +98,9 @@ export default function InternDashboard() {
   const handleInterviewAccept = async (appId: string) => {
     try {
       const res = await fetch('/api/applications', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: appId, status: '연락요망' }),
+        body: JSON.stringify({ applicationId: appId, newStatus: '연락요망' }),
       });
       const data = await res.json();
       if (data.success) {
