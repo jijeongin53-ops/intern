@@ -178,15 +178,18 @@ export default function InternDashboard() {
             ref={fileInputRef} 
             onChange={handleFileUpload} 
             style={{ display: 'none' }}
-            accept=".pdf,.doc,.docx,.hwp"
+            accept=".pdf"
           />
-          <button 
-            className="btn btn-primary" 
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? '업로드 중...' : '내 이력서 업로드'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? '업로드 중...' : '내 이력서 업로드'}
+            </button>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>[PDF파일만 업로드 됩니다.]</span>
+          </div>
 
           {resumeLink && (
             <span style={{ color: 'var(--success-color)', fontWeight: 'bold' }}>
