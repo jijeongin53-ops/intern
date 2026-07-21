@@ -7,21 +7,26 @@ export default function InternDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // 가상의 기업 목록 (실제로는 기업 유저 목록 API를 통해 가져와야 함)
-  const [companies, setCompanies] = useState([
-    { id: 'c1', name: 'A 기업', industry: 'IT' },
-    { id: 'c2', name: 'B 기업', industry: '마케팅' },
-    { id: 'c3', name: 'C 기업', industry: '디자인' },
-  ]);
 
   const fetchData = async (internId: string) => {
     try {
-      const res = await fetch(`/api/applications?internId=${internId}`);
-      const data = await res.json();
-      if (data.success) {
-        setApplications(data.applications || []);
+      const [appRes, userRes] = await Promise.all([
+        fetch(`/api/applications?internId=${internId}`),
+        fetch('/api/users')
+      ]);
+      
+      const appData = await appRes.json();
+      const userData = await userRes.json();
+      
+      if (appData.success) {
+        setApplications(appData.applications || []);
+      }
+      
+      if (userData.success) {
+        const companyUsers = userData.users.filter((u: any) => u.role === 'company');
+        setCompanies(companyUsers);
       }
     } catch (err) {
       console.error(err);
@@ -105,39 +110,50 @@ export default function InternDashboard() {
       </section>
 
       <section className="glass-panel" style={{ padding: '2rem' }}>
-        <h3>인턴십 참여 기업 목록</h3>
-        <p>희망하는 기업에 무제한으로 지원할 수 있습니다.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div>
+            <h3 style={{ margin: 0 }}>인턴십 참여 기업 목록</h3>
+            <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-secondary)' }}>희망하는 기업에 무제한으로 지원할 수 있습니다.</p>
+          </div>
+          <button className="btn btn-primary" onClick={() => user && fetchData(user.id)}>새로고침</button>
+        </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
-          {companies.map((company) => {
-            const hasApplied = applications.some(a => a.companyId === company.id);
-            const status = hasApplied ? '지원완료' : '지원가능';
+          {companies.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+              아직 가입한 기업이 없습니다.
+            </div>
+          ) : (
+            companies.map((company) => {
+              const hasApplied = applications.some(a => a.companyId === company.id);
+              const status = hasApplied ? '지원완료' : '지원가능';
 
-            return (
-              <div key={company.id} className="glass-card" style={{ padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '1.25rem', margin: 0 }}>{company.name}</h4>
-                  <span style={{ 
-                    padding: '0.25rem 0.5rem', 
-                    borderRadius: '4px', 
-                    fontSize: '0.75rem',
-                    backgroundColor: hasApplied ? 'rgba(255,255,255,0.1)' : 'var(--accent-color)'
-                  }}>
-                    {status}
-                  </span>
+              return (
+                <div key={company.id} className="glass-card" style={{ padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <h4 style={{ fontSize: '1.25rem', margin: 0 }}>{company.name}</h4>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.75rem',
+                      backgroundColor: hasApplied ? 'rgba(255,255,255,0.1)' : 'var(--accent-color)'
+                    }}>
+                      {status}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, marginBottom: '1.5rem', fontSize: '0.9rem' }}>이메일: {company.email}</p>
+                  <button 
+                    onClick={() => handleApply(company.id, company.name)}
+                    className={`btn ${!hasApplied ? 'btn-primary' : 'btn-glass'}`} 
+                    style={{ width: '100%' }}
+                    disabled={hasApplied}
+                  >
+                    {hasApplied ? '지원완료' : '지원하기'}
+                  </button>
                 </div>
-                <p style={{ margin: 0, marginBottom: '1.5rem', fontSize: '0.9rem' }}>분야: {company.industry}</p>
-                <button 
-                  onClick={() => handleApply(company.id, company.name)}
-                  className={`btn ${!hasApplied ? 'btn-primary' : 'btn-glass'}`} 
-                  style={{ width: '100%' }}
-                  disabled={hasApplied}
-                >
-                  {hasApplied ? '지원완료' : '지원하기'}
-                </button>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </section>
     </main>
