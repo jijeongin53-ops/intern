@@ -4,7 +4,7 @@ import { getSheetData, appendSheetData } from '@/lib/googleSheets';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, email, password, role, name } = body;
+    const { action, email, password, role, name, youthLocation, youthSalary, youthTasks, preferredQualifications, managerName, managerContact } = body;
 
     const data = await getSheetData('Master_Users!A:E');
     const users = data.slice(1); // skip header
@@ -24,7 +24,12 @@ export async function POST(request: Request) {
       }
 
       const id = Date.now().toString();
-      await appendSheetData('Master_Users!A:E', [[id, email, password, role, name]]);
+      
+      if (role === 'company') {
+        await appendSheetData('Master_Users!A:K', [[id, email, password, role, name, youthLocation, youthSalary, youthTasks, preferredQualifications, managerName, managerContact]]);
+      } else {
+        await appendSheetData('Master_Users!A:E', [[id, email, password, role, name]]);
+      }
       
       return NextResponse.json({ success: true, user: { id, email, role, name } });
     }

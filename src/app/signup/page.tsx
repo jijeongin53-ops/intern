@@ -10,6 +10,12 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('intern');
+  const [youthLocation, setYouthLocation] = useState('');
+  const [youthSalary, setYouthSalary] = useState('');
+  const [youthTasks, setYouthTasks] = useState('');
+  const [preferredQualifications, setPreferredQualifications] = useState('');
+  const [managerName, setManagerName] = useState('');
+  const [managerContact, setManagerContact] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,10 +25,17 @@ export default function Signup() {
     setError('');
 
     try {
+      const payload = { 
+        action: 'signup', name, email, password, role,
+        ...(role === 'company' && {
+          youthLocation, youthSalary, youthTasks, preferredQualifications, managerName, managerContact
+        })
+      };
+
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'signup', name, email, password, role }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       
@@ -69,6 +82,35 @@ export default function Signup() {
               <option value="company">기업 (Company)</option>
             </select>
           </div>
+
+          {role === 'company' && (
+            <>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" htmlFor="youthLocation">청년 근무 지역</label>
+                <input type="text" id="youthLocation" value={youthLocation} onChange={e => setYouthLocation(e.target.value)} className="form-input" placeholder="ex: 센텀" required />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" htmlFor="youthSalary">청년 급여 조건</label>
+                <input type="text" id="youthSalary" value={youthSalary} onChange={e => setYouthSalary(e.target.value)} className="form-input" placeholder="ex: 월 250" required />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" htmlFor="youthTasks">청년 담당 업무</label>
+                <input type="text" id="youthTasks" value={youthTasks} onChange={e => setYouthTasks(e.target.value)} className="form-input" placeholder="ex: 여행 상담" required />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" htmlFor="preferredQualifications">우대 조건</label>
+                <input type="text" id="preferredQualifications" value={preferredQualifications} onChange={e => setPreferredQualifications(e.target.value)} className="form-input" placeholder="ex: 영어 능통자" required />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" htmlFor="managerName">담당자 이름</label>
+                <input type="text" id="managerName" value={managerName} onChange={e => setManagerName(e.target.value)} className="form-input" placeholder="담당자 이름" required />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" htmlFor="managerContact">담당자 연락처</label>
+                <input type="text" id="managerContact" value={managerContact} onChange={e => setManagerContact(e.target.value)} className="form-input" placeholder="010-0000-0000" required />
+              </div>
+            </>
+          )}
 
           <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }} disabled={loading}>
             {loading ? '가입 중...' : '가입하기'}
