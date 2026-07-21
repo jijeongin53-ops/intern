@@ -234,7 +234,8 @@ export default function InternDashboard() {
             </div>
           ) : (
             companies.map((company) => {
-              const hasApplied = applications.some(a => a.companyId === company.id);
+              const application = applications.find(a => a.companyId === company.id);
+              const hasApplied = !!application;
               const status = hasApplied ? '지원완료' : '지원가능';
               const canApply = !!resumeLink; // 이력서가 있어야 지원 가능
 
