@@ -124,7 +124,7 @@ export default function CompanyDashboard() {
                       <button className="btn btn-glass" onClick={() => handleStatusUpdate(applicant.id, '불합격')} style={{ borderColor: 'var(--danger-color)', color: 'var(--danger-color)' }}>불합격</button>
                     </>
                   )}
-                  {(applicant.status === '서류통과' || applicant.status === '면접요청') && (
+                  {(applicant.status === '서류통과' || applicant.status === '면접요청' || applicant.status === '연락요망') && (
                     <>
                       <button className="btn btn-primary" onClick={() => handleStatusUpdate(applicant.id, '최종합격')}>최종 합격</button>
                     </>

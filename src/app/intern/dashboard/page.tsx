@@ -95,6 +95,25 @@ export default function InternDashboard() {
     }
   };
 
+  const handleInterviewAccept = async (appId: string) => {
+    try {
+      const res = await fetch('/api/applications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: appId, status: '연락요망' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('기업에 연락을 요청했습니다. 기업의 연락을 기다려주세요!');
+        fetchData(user.id);
+      } else {
+        alert(data.error || '처리 실패');
+      }
+    } catch (err) {
+      alert('서버 오류');
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -227,20 +246,24 @@ export default function InternDashboard() {
                       padding: '0.25rem 0.5rem', 
                       borderRadius: '4px', 
                       fontSize: '0.75rem',
-                      backgroundColor: hasApplied ? 'rgba(255,255,255,0.1)' : 'var(--accent-color)'
+                      backgroundColor: application?.status === '면접요청' ? 'var(--accent-color)' : (hasApplied ? 'rgba(255,255,255,0.1)' : 'var(--accent-color)'),
+                      color: application?.status === '면접요청' ? 'white' : 'inherit'
                     }}>
-                      {status}
+                      {application?.status || status}
                     </span>
                   </div>
                   <p style={{ margin: 0, marginBottom: '1.5rem', fontSize: '0.9rem' }}>이메일: {company.email}</p>
                   <button 
-                    onClick={() => handleApply(company.id, company.name, company.email)}
-                    className={`btn ${!hasApplied && canApply ? 'btn-primary' : 'btn-glass'}`} 
+                    onClick={() => {
+                      if (!hasApplied) handleApply(company.id, company.name, company.email);
+                      else if (application?.status === '면접요청') handleInterviewAccept(application.id);
+                    }}
+                    className={`btn ${!hasApplied && canApply ? 'btn-primary' : (application?.status === '면접요청' ? 'btn-primary' : 'btn-glass')}`} 
                     style={{ width: '100%', opacity: (!hasApplied && !canApply) ? 0.5 : 1 }}
-                    disabled={hasApplied || !canApply}
+                    disabled={(hasApplied && application?.status !== '면접요청') || (!hasApplied && !canApply)}
                     title={!canApply ? '이력서를 먼저 업로드해주세요' : ''}
                   >
-                    {hasApplied ? '지원완료' : (!canApply ? '이력서 등록 필요' : '지원하기')}
+                    {!hasApplied ? (!canApply ? '이력서 등록 필요' : '지원하기') : (application.status === '면접요청' ? '면접 수락(연락 요청)' : application.status)}
                   </button>
                 </div>
               );
