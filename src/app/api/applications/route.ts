@@ -8,6 +8,15 @@ export async function GET(request: Request) {
     const internId = searchParams.get('internId');
     const companyId = searchParams.get('companyId');
 
+    const docData = await getSheetData('Documents_Log!A:F');
+    const resumeMap: Record<string, string> = {};
+    docData.slice(1).forEach(row => {
+      const isNewFormat = row.length >= 6;
+      const id = row[1];
+      const link = isNewFormat ? row[4] : row[3];
+      if (link) resumeMap[id] = link;
+    });
+
     const data = await getSheetData('Project_Status!A:G');
     const applications = data.slice(1).map((row) => ({
       id: row[0],
@@ -17,6 +26,7 @@ export async function GET(request: Request) {
       companyName: row[4],
       status: row[5],
       date: row[6],
+      resumeLink: resumeMap[row[1]] || null
     }));
 
     let filtered = applications;
@@ -45,10 +55,12 @@ export async function POST(req: NextRequest) {
 
     // 1. 이력서 링크 조회
     let resumeLink = '이력서 미첨부';
-    const docData = await getSheetData('Documents_Log!A:E');
+    const docData = await getSheetData('Documents_Log!A:F');
     const userDocs = docData.slice(1).filter(row => row[1] === internId);
     if (userDocs.length > 0) {
-      resumeLink = userDocs[userDocs.length - 1][3]; // 마지막 업로드 링크
+      const row = userDocs[userDocs.length - 1];
+      const isNewFormat = row.length >= 6;
+      resumeLink = isNewFormat ? row[4] : row[3];
     }
 
     const appId = Date.now().toString();

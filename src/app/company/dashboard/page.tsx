@@ -7,7 +7,13 @@ export default function CompanyDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [applicants, setApplicants] = useState<any[]>([]);
+  const [downloadedResumes, setDownloadedResumes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+
+  const handleDownload = (appId: string, link: string) => {
+    setDownloadedResumes(prev => new Set(prev).add(appId));
+    window.open(link, '_blank');
+  };
 
   const fetchData = async (companyName: string) => {
     try {
@@ -116,13 +122,28 @@ export default function CompanyDashboard() {
                   <p style={{ margin: 0, fontSize: '0.9rem' }}>지원일: {applicant.date} | 상태: <span style={{ color: applicant.status === '서류통과' || applicant.status === '최종합격' ? 'var(--success-color)' : 'var(--text-secondary)' }}>{applicant.status}</span></p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button className="btn btn-glass">이력서 열람</button>
+                  {applicant.resumeLink ? (
+                    <button className="btn btn-glass" onClick={() => handleDownload(applicant.id, applicant.resumeLink)}>
+                      이력서 다운로드
+                    </button>
+                  ) : (
+                    <button className="btn btn-glass" disabled>이력서 없음</button>
+                  )}
                   {applicant.status === '지원완료' && (
                     <>
-                      <button className="btn btn-glass" onClick={() => handleStatusUpdate(applicant.id, '면접요청')} style={{ borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>면접 희망</button>
-                      <button className="btn btn-primary" onClick={() => handleStatusUpdate(applicant.id, '서류통과')}>서류 합격</button>
+                      <button 
+                        className={`btn ${downloadedResumes.has(applicant.id) ? 'btn-primary' : 'btn-glass'}`}
+                        onClick={() => handleStatusUpdate(applicant.id, '서류통과')}
+                        disabled={!downloadedResumes.has(applicant.id)}
+                        title={!downloadedResumes.has(applicant.id) ? '이력서를 다운로드해야 서류 합격 처리가 가능합니다.' : ''}
+                      >
+                        서류 합격
+                      </button>
                       <button className="btn btn-glass" onClick={() => handleStatusUpdate(applicant.id, '불합격')} style={{ borderColor: 'var(--danger-color)', color: 'var(--danger-color)' }}>불합격</button>
                     </>
+                  )}
+                  {applicant.status === '서류통과' && (
+                    <button className="btn btn-glass" onClick={() => handleStatusUpdate(applicant.id, '면접요청')} style={{ borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>면접 희망</button>
                   )}
                   {(applicant.status === '서류통과' || applicant.status === '면접요청' || applicant.status === '연락요망') && (
                     <>
