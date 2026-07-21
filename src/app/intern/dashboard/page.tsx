@@ -103,6 +103,7 @@ export default function InternDashboard() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('internId', user.id);
+    formData.append('internName', user.name);
 
     try {
       const res = await fetch('/api/upload', {

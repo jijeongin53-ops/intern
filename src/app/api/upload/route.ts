@@ -42,12 +42,13 @@ export async function POST(req: NextRequest) {
     const webViewLink = gasData.url;
 
     // Save to Documents_Log Sheet
-    // Headers: ['Log ID', 'User ID', 'Document Name', 'File Link', 'Upload Date']
+    // Headers: ['Log ID', 'User ID', 'User Name', 'Document Name', 'File Link', 'Upload Date']
     const logId = Date.now().toString();
     const uploadDate = new Date().toISOString().split('T')[0];
+    const internName = formData.get('internName') as string || '이름 없음';
     
-    await appendSheetData('Documents_Log!A:E', [
-      [logId, internId, file.name, webViewLink, uploadDate]
+    await appendSheetData('Documents_Log!A:F', [
+      [logId, internId, internName, file.name, webViewLink, uploadDate]
     ]);
 
     return NextResponse.json({ success: true, link: webViewLink });

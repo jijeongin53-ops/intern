@@ -10,15 +10,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'internId required' }, { status: 400 });
     }
 
-    const data = await getSheetData('Documents_Log!A:E');
-    // Headers: ['Log ID', 'User ID', 'Document Name', 'File Link', 'Upload Date']
-    const documents = data.slice(1).map(row => ({
-      id: row[0],
-      internId: row[1],
-      name: row[2],
-      link: row[3],
-      date: row[4]
-    })).filter(doc => doc.internId === internId);
+    const data = await getSheetData('Documents_Log!A:F');
+    // Headers: ['Log ID', 'User ID', 'User Name', 'Document Name', 'File Link', 'Upload Date']
+    const documents = data.slice(1).map(row => {
+      const isNewFormat = row.length >= 6;
+      return {
+        id: row[0],
+        internId: row[1],
+        internName: isNewFormat ? row[2] : '이름 없음',
+        name: isNewFormat ? row[3] : row[2],
+        link: isNewFormat ? row[4] : row[3],
+        date: isNewFormat ? row[5] : row[4]
+      };
+    }).filter(doc => doc.internId === internId);
 
     // Get the most recent document
     const latestDoc = documents.length > 0 ? documents[documents.length - 1] : null;
