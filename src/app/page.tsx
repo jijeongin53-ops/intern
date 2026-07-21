@@ -24,20 +24,6 @@ export default function Home() {
         </div>
       </div>
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', width: '100%', maxWidth: '800px', marginTop: '3rem' }}>
-        <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }}>무제한 지원</h3>
-          <p style={{ margin: 0, fontSize: '0.9rem' }}>희망하는 기업에 제한 없이 자유롭게 지원할 수 있습니다.</p>
-        </div>
-        <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }}>실시간 연동</h3>
-          <p style={{ margin: 0, fontSize: '0.9rem' }}>모든 데이터는 실시간으로 처리되어 결과를 빠르게 확인할 수 있습니다.</p>
-        </div>
-        <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }}>간편한 관리</h3>
-          <p style={{ margin: 0, fontSize: '0.9rem' }}>지원서 열람부터 합격 처리까지 원스톱으로 제공합니다.</p>
-        </div>
-      </div>
     </main>
   );
 }
