@@ -56,6 +56,7 @@ export default function AdminDashboard() {
   };
 
   const totalCount = applications.length;
+  const interviewCount = applications.filter(app => app.status === '면접요청').length;
   const passedCount = applications.filter(app => app.status === '서류통과').length;
   const finalCount = applications.filter(app => app.status === '최종합격').length;
 
@@ -85,7 +86,11 @@ export default function AdminDashboard() {
         <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
           <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
             <h4>총 지원 건수</h4>
-            <p style={{ fontSize: '2rem', color: 'var(--accent-color)', margin: 0, fontWeight: 'bold' }}>{totalCount}</p>
+            <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{totalCount}</p>
+          </div>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
+            <h4>면접 요청</h4>
+            <p style={{ fontSize: '2rem', color: 'var(--accent-color)', margin: 0, fontWeight: 'bold' }}>{interviewCount}</p>
           </div>
           <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
             <h4>서류 통과</h4>

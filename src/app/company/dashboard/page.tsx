@@ -66,6 +66,7 @@ export default function CompanyDashboard() {
   };
 
   const newCount = applicants.filter(a => a.status === '지원완료').length;
+  const interviewCount = applicants.filter(a => a.status === '면접요청').length;
   const reviewCount = applicants.filter(a => a.status === '서류통과').length;
   const finalCount = applicants.filter(a => a.status === '최종합격').length;
 
@@ -81,11 +82,15 @@ export default function CompanyDashboard() {
         <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
           <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
             <h4>신규 지원자</h4>
-            <p style={{ fontSize: '2rem', color: 'var(--accent-color)', margin: 0, fontWeight: 'bold' }}>{newCount}</p>
+            <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{newCount}</p>
           </div>
           <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
-            <h4>서류 심사중</h4>
-            <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{reviewCount}</p>
+            <h4>면접 요청</h4>
+            <p style={{ fontSize: '2rem', color: 'var(--accent-color)', margin: 0, fontWeight: 'bold' }}>{interviewCount}</p>
+          </div>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
+            <h4>서류 통과</h4>
+            <p style={{ fontSize: '2rem', color: 'var(--success-color)', margin: 0, fontWeight: 'bold' }}>{reviewCount}</p>
           </div>
           <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
             <h4>최종 합격</h4>
@@ -114,11 +119,12 @@ export default function CompanyDashboard() {
                   <button className="btn btn-glass">이력서 열람</button>
                   {applicant.status === '지원완료' && (
                     <>
+                      <button className="btn btn-glass" onClick={() => handleStatusUpdate(applicant.id, '면접요청')} style={{ borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>면접 희망</button>
                       <button className="btn btn-primary" onClick={() => handleStatusUpdate(applicant.id, '서류통과')}>서류 합격</button>
                       <button className="btn btn-glass" onClick={() => handleStatusUpdate(applicant.id, '불합격')} style={{ borderColor: 'var(--danger-color)', color: 'var(--danger-color)' }}>불합격</button>
                     </>
                   )}
-                  {applicant.status === '서류통과' && (
+                  {(applicant.status === '서류통과' || applicant.status === '면접요청') && (
                     <>
                       <button className="btn btn-primary" onClick={() => handleStatusUpdate(applicant.id, '최종합격')}>최종 합격</button>
                     </>

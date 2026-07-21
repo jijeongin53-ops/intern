@@ -126,6 +126,7 @@ export default function InternDashboard() {
   };
 
   const appliedCount = applications.length;
+  const interviewCount = applications.filter(a => a.status === '면접요청').length;
   const passedCount = applications.filter(a => a.status === '서류통과').length;
   const finalCount = applications.filter(a => a.status === '최종합격').length;
 
@@ -180,7 +181,11 @@ export default function InternDashboard() {
         <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
           <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
             <h4>지원 완료</h4>
-            <p style={{ fontSize: '2rem', color: 'var(--accent-color)', margin: 0, fontWeight: 'bold' }}>{appliedCount}</p>
+            <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{appliedCount}</p>
+          </div>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
+            <h4>면접 요청</h4>
+            <p style={{ fontSize: '2rem', color: 'var(--accent-color)', margin: 0, fontWeight: 'bold' }}>{interviewCount}</p>
           </div>
           <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
             <h4>서류 통과</h4>
