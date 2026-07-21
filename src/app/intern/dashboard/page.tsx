@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function InternDashboard() {
@@ -8,17 +8,22 @@ export default function InternDashboard() {
   const [user, setUser] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
+  const [resumeLink, setResumeLink] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = async (internId: string) => {
     try {
-      const [appRes, userRes] = await Promise.all([
+      const [appRes, userRes, docRes] = await Promise.all([
         fetch(`/api/applications?internId=${internId}`),
-        fetch('/api/users')
+        fetch('/api/users'),
+        fetch(`/api/documents?internId=${internId}`)
       ]);
       
       const appData = await appRes.json();
       const userData = await userRes.json();
+      const docData = await docRes.json();
       
       if (appData.success) {
         setApplications(appData.applications || []);
@@ -27,6 +32,10 @@ export default function InternDashboard() {
       if (userData.success) {
         const companyUsers = userData.users.filter((u: any) => u.role === 'company');
         setCompanies(companyUsers);
+      }
+
+      if (docData.success && docData.document) {
+        setResumeLink(docData.document.link);
       }
     } catch (err) {
       console.error(err);
@@ -55,8 +64,13 @@ export default function InternDashboard() {
     router.push('/login');
   };
 
-  const handleApply = async (companyId: string, companyName: string) => {
+  const handleApply = async (companyId: string, companyName: string, companyEmail: string) => {
     if (!user) return;
+    if (!resumeLink) {
+      alert('먼저 이력서를 업로드해주세요!');
+      return;
+    }
+
     try {
       const res = await fetch('/api/applications', {
         method: 'POST',
@@ -65,18 +79,49 @@ export default function InternDashboard() {
           internId: user.id,
           internName: user.name,
           companyId,
-          companyName
+          companyName,
+          companyEmail
         }),
       });
       const data = await res.json();
       if (data.success) {
-        alert('지원 완료되었습니다!');
+        alert('지원 완료되었습니다! (기업으로 이력서가 자동 발송되었습니다)');
         fetchData(user.id); // 새로고침
       } else {
         alert(data.message || '지원 실패');
       }
     } catch (err) {
       alert('서버 오류');
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('internId', user.id);
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        alert('이력서 업로드가 완료되었습니다!');
+        setResumeLink(data.link);
+      } else {
+        alert('업로드 실패: ' + data.message);
+      }
+    } catch (err) {
+      alert('업로드 중 서버 오류가 발생했습니다.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -90,6 +135,39 @@ export default function InternDashboard() {
         <h2>청년(Intern) 대시보드 - {user?.name}님 환영합니다</h2>
         <button className="btn btn-glass" onClick={handleLogout}>로그아웃</button>
       </header>
+
+      {/* 이력서 관리 섹션 */}
+      <section className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem', border: !resumeLink ? '2px solid var(--accent-color)' : '1px solid var(--glass-border)' }}>
+        <h3>필수! 이력서 관리</h3>
+        <p style={{ color: 'var(--text-secondary)' }}>기업에 지원하기 위해서는 반드시 먼저 이력서를 작성하고 업로드해야 합니다.</p>
+        
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button className="btn btn-glass" onClick={() => alert('구글 시트 등록 후 제공될 예정입니다.')}>
+            이력서 양식 다운로드
+          </button>
+          
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            style={{ display: 'none' }}
+            accept=".pdf,.doc,.docx,.hwp"
+          />
+          <button 
+            className="btn btn-primary" 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? '업로드 중...' : '내 이력서 업로드'}
+          </button>
+
+          {resumeLink && (
+            <span style={{ color: 'var(--success-color)', fontWeight: 'bold' }}>
+              ✓ 이력서 등록 완료 (<a href={resumeLink} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>내 이력서 보기</a>)
+            </span>
+          )}
+        </div>
+      </section>
 
       <section className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <h3>내 지원 현황</h3>
@@ -127,6 +205,7 @@ export default function InternDashboard() {
             companies.map((company) => {
               const hasApplied = applications.some(a => a.companyId === company.id);
               const status = hasApplied ? '지원완료' : '지원가능';
+              const canApply = !!resumeLink; // 이력서가 있어야 지원 가능
 
               return (
                 <div key={company.id} className="glass-card" style={{ padding: '1.5rem' }}>
@@ -143,12 +222,13 @@ export default function InternDashboard() {
                   </div>
                   <p style={{ margin: 0, marginBottom: '1.5rem', fontSize: '0.9rem' }}>이메일: {company.email}</p>
                   <button 
-                    onClick={() => handleApply(company.id, company.name)}
-                    className={`btn ${!hasApplied ? 'btn-primary' : 'btn-glass'}`} 
-                    style={{ width: '100%' }}
-                    disabled={hasApplied}
+                    onClick={() => handleApply(company.id, company.name, company.email)}
+                    className={`btn ${!hasApplied && canApply ? 'btn-primary' : 'btn-glass'}`} 
+                    style={{ width: '100%', opacity: (!hasApplied && !canApply) ? 0.5 : 1 }}
+                    disabled={hasApplied || !canApply}
+                    title={!canApply ? '이력서를 먼저 업로드해주세요' : ''}
                   >
-                    {hasApplied ? '지원완료' : '지원하기'}
+                    {hasApplied ? '지원완료' : (!canApply ? '이력서 등록 필요' : '지원하기')}
                   </button>
                 </div>
               );

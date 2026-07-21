@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getSheetData, appendSheetData, updateSheetData } from '@/lib/googleSheets';
+import nodemailer from 'nodemailer';
 
 export async function GET(request: Request) {
   try {
@@ -33,18 +34,65 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { internId, internName, companyId, companyName } = body;
+    const body = await req.json();
+    const { internId, internName, companyId, companyName, companyEmail } = body;
 
-    const id = Date.now().toString();
+    if (!internId || !companyId) {
+      return NextResponse.json({ success: false, message: 'Missing parameters' }, { status: 400 });
+    }
+
+    // 1. 이력서 링크 조회
+    let resumeLink = '이력서 미첨부';
+    const docData = await getSheetData('Documents_Log!A:E');
+    const userDocs = docData.slice(1).filter(row => row[1] === internId);
+    if (userDocs.length > 0) {
+      resumeLink = userDocs[userDocs.length - 1][3]; // 마지막 업로드 링크
+    }
+
+    const appId = Date.now().toString();
     const date = new Date().toISOString().split('T')[0];
-    const status = '지원완료';
+    
+    // 2. 구글 시트 데이터 추가
+    await appendSheetData('Project_Status!A:G', [
+      [appId, internId, internName, companyId, companyName, '지원완료', date]
+    ]);
 
-    await appendSheetData('Project_Status!A:G', [[id, internId, internName, companyId, companyName, status, date]]);
+    // 3. 기업 담당자에게 이메일 발송
+    if (companyEmail && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
 
-    return NextResponse.json({ success: true, application: { id, internId, internName, companyId, companyName, status, date } });
+      const mailOptions = {
+        from: `"인턴십 매칭 플랫폼" <${process.env.EMAIL_USER}>`,
+        to: companyEmail,
+        subject: `[새로운 인턴 지원] ${internName}님이 ${companyName}에 지원했습니다.`,
+        html: `
+          <div style="font-family: sans-serif; padding: 20px;">
+            <h2>새로운 인턴 지원자가 있습니다!</h2>
+            <p><strong>지원자 이름:</strong> ${internName}</p>
+            <p><strong>지원일:</strong> ${date}</p>
+            <br/>
+            <p><strong>이력서 열람하기:</strong></p>
+            <a href="${resumeLink}" target="_blank" style="display:inline-block; padding:10px 20px; background-color:#3b82f6; color:white; text-decoration:none; border-radius:5px;">
+              이력서 보기
+            </a>
+            <br/><br/>
+            <p>자세한 사항은 기업 대시보드에서 확인하시고 합격 여부를 처리해 주세요.</p>
+          </div>
+        `,
+      };
+      
+      await transporter.sendMail(mailOptions);
+    }
+
+    return NextResponse.json({ success: true, appId });
   } catch (error: any) {
     console.error('Applications API POST Error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

@@ -18,7 +18,8 @@ export async function getGoogleSheetsClient() {
     },
     scopes: [
       'https://www.googleapis.com/auth/spreadsheets',
-      'https://www.googleapis.com/auth/drive.file', // Optional: if drive uploading is needed
+      'https://www.googleapis.com/auth/drive',
+      'https://www.googleapis.com/auth/drive.file'
     ],
   });
 
