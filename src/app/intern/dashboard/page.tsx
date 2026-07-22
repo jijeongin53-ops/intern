@@ -116,6 +116,10 @@ export default function InternDashboard() {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (resumeLink) {
+      alert('이력서는 한 번만 업로드할 수 있습니다.');
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
@@ -185,9 +189,9 @@ export default function InternDashboard() {
             <button 
               className="btn btn-primary" 
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
+              disabled={uploading || !!resumeLink}
             >
-              {uploading ? '업로드 중...' : '내 이력서 업로드'}
+              {uploading ? '업로드 중...' : (resumeLink ? '업로드 완료됨' : '내 이력서 업로드')}
             </button>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>[PDF파일만 업로드 됩니다.]</span>
           </div>
