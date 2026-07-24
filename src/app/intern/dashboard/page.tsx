@@ -331,6 +331,8 @@ export default function InternDashboard() {
           <div style={{ padding: '2.5rem', maxWidth: '500px', width: '90%', position: 'relative', backgroundColor: '#0f172a', border: '1px solid var(--accent-color)', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}>
             <h3 style={{ marginTop: 0, color: 'var(--text-primary)', marginBottom: '1.5rem', textAlign: 'center' }}>공지사항</h3>
             <p style={{ fontSize: '1.1rem', lineHeight: '1.6', textAlign: 'center', marginBottom: '2rem' }}>
+              참가기업은 현재 모집 중이라 계속 업데이트가 됩니다.<br />
+              면접 신청의 제한은 없으니 수시로 로그인해서 확인해 주시기 바랍니다.<br /><br />
               면접은 8월 4일 인턴 매칭 데이에 일괄 진행 되오니 참고해 주시기 바랍니다.<br />
               기타 문의 사항은 사무국으로 문의 주세요.
             </p>
