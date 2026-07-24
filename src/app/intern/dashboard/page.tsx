@@ -36,8 +36,8 @@ export default function InternDashboard() {
         setCompanies(companyUsers);
       }
 
-      if (docData.success && docData.document) {
-        setResumeLink(docData.document.link);
+      if (docData.success) {
+        setResumeLink(docData.document ? docData.document.link : null);
       }
     } catch (err) {
       console.error(err);
