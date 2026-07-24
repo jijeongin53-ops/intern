@@ -6,28 +6,46 @@ import { useRouter } from 'next/navigation';
 export default function AdminDashboard() {
   const router = useRouter();
   const [applications, setApplications] = useState<any[]>([]);
-  const [stats, setStats] = useState({ internCount: 0, companyCount: 0 });
+  const [interns, setInterns] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [showInternPopup, setShowInternPopup] = useState(false);
+  const [showCompanyPopup, setShowCompanyPopup] = useState(false);
+  const [showDocumentPopup, setShowDocumentPopup] = useState(false);
+  const [stats, setStats] = useState({ internCount: 0, companyCount: 0, documentCount: 0 });
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const [appRes, userRes] = await Promise.all([
+      const [appRes, userRes, docRes] = await Promise.all([
         fetch('/api/applications'),
-        fetch('/api/users')
+        fetch('/api/users'),
+        fetch('/api/documents')
       ]);
       
       const appData = await appRes.json();
       const userData = await userRes.json();
+      const docData = await docRes.json();
 
       if (appData.success) {
         setApplications(appData.applications || []);
       }
       if (userData.success) {
-        setStats({
+        setInterns(userData.users?.filter((u: any) => u.role === 'intern') || []);
+        setCompanies(userData.users?.filter((u: any) => u.role === 'company') || []);
+        setStats(prev => ({
+          ...prev,
           internCount: userData.internCount || 0,
           companyCount: userData.companyCount || 0
-        });
+        }));
+      }
+      if (docData.success) {
+        setDocuments(docData.documents || []);
+        setStats(prev => ({
+          ...prev,
+          documentCount: docData.documents?.length || 0
+        }));
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data', error);
@@ -70,11 +88,15 @@ export default function AdminDashboard() {
       <section className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <h3>전체 가입자 현황</h3>
         <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center', cursor: 'pointer' }} onClick={() => setShowInternPopup(true)}>
             <h4>가입한 청년</h4>
             <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{stats.internCount} 명</p>
           </div>
-          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center' }}>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center', cursor: 'pointer' }} onClick={() => setShowDocumentPopup(true)}>
+            <h4>이력서 제출 현황</h4>
+            <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{stats.documentCount} 건</p>
+          </div>
+          <div className="glass-card" style={{ padding: '1rem', flex: 1, textAlign: 'center', cursor: 'pointer' }} onClick={() => setShowCompanyPopup(true)}>
             <h4>가입한 기업</h4>
             <p style={{ fontSize: '2rem', color: 'var(--text-primary)', margin: 0, fontWeight: 'bold' }}>{stats.companyCount} 개</p>
           </div>
@@ -154,6 +176,64 @@ export default function AdminDashboard() {
           </table>
         </div>
       </section>
+
+      {/* Intern Popup */}
+      {showInternPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ padding: '2rem', maxWidth: '600px', width: '90%', maxHeight: '80vh', overflowY: 'auto', position: 'relative', backgroundColor: '#0f172a', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px' }}>
+            <button onClick={() => setShowInternPopup(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>가입 청년 현황</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {interns.map((intern, i) => (
+                <li key={i} style={{ padding: '1rem', backgroundColor: '#1e293b', borderRadius: '8px' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{intern.name}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{intern.email}</div>
+                </li>
+              ))}
+              {interns.length === 0 && <li style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>가입한 청년이 없습니다.</li>}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Company Popup */}
+      {showCompanyPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ padding: '2rem', maxWidth: '600px', width: '90%', maxHeight: '80vh', overflowY: 'auto', position: 'relative', backgroundColor: '#0f172a', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px' }}>
+            <button onClick={() => setShowCompanyPopup(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>가입 기업 현황</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {companies.map((company, i) => (
+                <li key={i} style={{ padding: '1rem', backgroundColor: '#1e293b', borderRadius: '8px' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{company.name}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{company.email}</div>
+                </li>
+              ))}
+              {companies.length === 0 && <li style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>가입한 기업이 없습니다.</li>}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Documents Popup */}
+      {showDocumentPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ padding: '2rem', maxWidth: '600px', width: '90%', maxHeight: '80vh', overflowY: 'auto', position: 'relative', backgroundColor: '#0f172a', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px' }}>
+            <button onClick={() => setShowDocumentPopup(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>제출 이력서 현황</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {documents.map((doc, i) => (
+                <li key={i} style={{ padding: '1rem', backgroundColor: '#1e293b', borderRadius: '8px' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{doc.internName}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>업로드일: {doc.date}</div>
+                  <a href={doc.link} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-color)', textDecoration: 'underline' }}>이력서 보기</a>
+                </li>
+              ))}
+              {documents.length === 0 && <li style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>제출된 이력서가 없습니다.</li>}
+            </ul>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
