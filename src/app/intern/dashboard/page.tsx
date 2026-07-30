@@ -15,6 +15,41 @@ export default function InternDashboard() {
   const [showNotice, setShowNotice] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [showContactPopup, setShowContactPopup] = useState(false);
+  const [contactText, setContactText] = useState('');
+  const [isSendingContact, setIsSendingContact] = useState(false);
+
+  const handleContactSubmit = async () => {
+    if (contactText.trim().length === 0) {
+      alert('문의 내용을 입력해주세요.');
+      return;
+    }
+    setIsSendingContact(true);
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          to: ['jguy12@hanmail.net'], 
+          subject: `[문의사항] 청년(${user?.name})님이 문의를 남겼습니다.`, 
+          text: contactText 
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('문의가 성공적으로 접수되었습니다.');
+        setShowContactPopup(false);
+        setContactText('');
+      } else {
+        alert('발송 실패: ' + data.message);
+      }
+    } catch(err) {
+      alert('오류가 발생했습니다.');
+    } finally {
+      setIsSendingContact(false);
+    }
+  };
+
   const fetchData = async (internId: string) => {
     try {
       const [appRes, userRes, docRes] = await Promise.all([
@@ -160,7 +195,10 @@ export default function InternDashboard() {
     <main className="container" style={{ padding: '2rem 0' }}>
       <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>청년(Intern) 대시보드 - {user?.name}님 환영합니다</h2>
-        <button className="btn btn-glass" onClick={handleLogout}>로그아웃</button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-primary" onClick={() => setShowContactPopup(true)}>문의하기</button>
+          <button className="btn btn-glass" onClick={handleLogout}>로그아웃</button>
+        </div>
       </header>
 
       {/* 이력서 관리 섹션 */}
@@ -337,6 +375,25 @@ export default function InternDashboard() {
               기타 문의 사항은 사무국으로 문의 주세요.
             </p>
             <button className="btn btn-primary" style={{ width: '100%', fontSize: '1.1rem', padding: '0.8rem' }} onClick={() => setShowNotice(false)}>확인했습니다</button>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Popup */}
+      {showContactPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1200 }}>
+          <div style={{ padding: '2.5rem', maxWidth: '500px', width: '90%', position: 'relative', backgroundColor: '#0f172a', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}>
+            <button onClick={() => setShowContactPopup(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+            <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>운영 사무국에 문의하기</h3>
+            <textarea 
+              style={{ width: '100%', height: '150px', padding: '1rem', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '8px', resize: 'none', marginBottom: '1rem' }} 
+              placeholder="문의하실 내용을 입력해주세요." 
+              value={contactText}
+              onChange={e => setContactText(e.target.value)}
+            />
+            <button className="btn btn-primary" style={{ width: '100%', fontSize: '1.1rem', padding: '0.8rem' }} onClick={handleContactSubmit} disabled={isSendingContact}>
+              {isSendingContact ? '보내는 중...' : '보내기'}
+            </button>
           </div>
         </div>
       )}
