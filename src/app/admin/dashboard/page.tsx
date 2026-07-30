@@ -258,23 +258,8 @@ export default function AdminDashboard() {
               )}
             </div>
             
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {interns.map((intern, i) => (
-                <li key={i} style={{ padding: '1rem', backgroundColor: '#1e293b', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  {emailMode && emailTargetType === 'individual' && (
-                    <input type="checkbox" style={{ transform: 'scale(1.5)', cursor: 'pointer' }} checked={selectedEmails.has(intern.email)} onChange={() => toggleEmailSelection(intern.email)} />
-                  )}
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{intern.name}</div>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{intern.email}</div>
-                  </div>
-                </li>
-              ))}
-              {interns.length === 0 && <li style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>가입한 청년이 없습니다.</li>}
-            </ul>
-
             {emailMode && (
-              <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
+              <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1.5rem' }}>
                 <h4 style={{ margin: '0 0 1rem 0' }}>메일 내용 작성</h4>
                 <textarea 
                   style={{ width: '100%', height: '120px', padding: '1rem', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '8px', resize: 'none', marginBottom: '0.5rem' }} 
@@ -291,6 +276,21 @@ export default function AdminDashboard() {
                 </div>
               </div>
             )}
+
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {interns.map((intern, i) => (
+                <li key={i} style={{ padding: '1rem', backgroundColor: '#1e293b', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  {emailMode && emailTargetType === 'individual' && (
+                    <input type="checkbox" style={{ transform: 'scale(1.5)', cursor: 'pointer' }} checked={selectedEmails.has(intern.email)} onChange={() => toggleEmailSelection(intern.email)} />
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{intern.name}</div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{intern.email}</div>
+                  </div>
+                </li>
+              ))}
+              {interns.length === 0 && <li style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>가입한 청년이 없습니다.</li>}
+            </ul>
           </div>
         </div>
       )}
@@ -313,23 +313,8 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {companies.map((company, i) => (
-                <li key={i} style={{ padding: '1rem', backgroundColor: '#1e293b', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  {emailMode && emailTargetType === 'individual' && (
-                    <input type="checkbox" style={{ transform: 'scale(1.5)', cursor: 'pointer' }} checked={selectedEmails.has(company.email)} onChange={() => toggleEmailSelection(company.email)} />
-                  )}
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{company.name}</div>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{company.email}</div>
-                  </div>
-                </li>
-              ))}
-              {companies.length === 0 && <li style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>가입한 기업이 없습니다.</li>}
-            </ul>
-
             {emailMode && (
-              <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
+              <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1.5rem' }}>
                 <h4 style={{ margin: '0 0 1rem 0' }}>메일 내용 작성</h4>
                 <textarea 
                   style={{ width: '100%', height: '120px', padding: '1rem', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '8px', resize: 'none', marginBottom: '0.5rem' }} 
@@ -346,6 +331,21 @@ export default function AdminDashboard() {
                 </div>
               </div>
             )}
+
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {companies.map((company, i) => (
+                <li key={i} style={{ padding: '1rem', backgroundColor: '#1e293b', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  {emailMode && emailTargetType === 'individual' && (
+                    <input type="checkbox" style={{ transform: 'scale(1.5)', cursor: 'pointer' }} checked={selectedEmails.has(company.email)} onChange={() => toggleEmailSelection(company.email)} />
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.25rem' }}>{company.name}</div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{company.email}</div>
+                  </div>
+                </li>
+              ))}
+              {companies.length === 0 && <li style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>가입한 기업이 없습니다.</li>}
+            </ul>
           </div>
         </div>
       )}
