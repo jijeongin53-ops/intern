@@ -9,7 +9,7 @@ export default function CompanyDashboard() {
   const [applicants, setApplicants] = useState<any[]>([]);
   const [downloadedResumes, setDownloadedResumes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [showNotice, setShowNotice] = useState(true);
+  const [showNotice, setShowNotice] = useState(false); // [사용자 요청] 로그인 시 공지사항 삭제
 
   const [showContactPopup, setShowContactPopup] = useState(false);
   const [contactText, setContactText] = useState('');
@@ -196,6 +196,7 @@ export default function CompanyDashboard() {
         </div>
       </section>
 
+      {/* [사용자 요청] 로그인 시 공지사항 모달 삭제 처리
       {showNotice && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
           <div style={{ padding: '2.5rem', maxWidth: '500px', width: '90%', position: 'relative', backgroundColor: '#0f172a', border: '1px solid var(--accent-color)', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}>
@@ -208,6 +209,7 @@ export default function CompanyDashboard() {
           </div>
         </div>
       )}
+      */}
 
       {/* Contact Popup */}
       {showContactPopup && (
